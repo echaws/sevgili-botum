@@ -64,6 +64,9 @@ Railway → Variables kısmına ekle:
 - **REL_START_DATE** (örn `2025-03-12`)
 - **DAILY_AT** (örn `10:00`)
 
+> Not: Repoda `runtime.txt` ve `nixpacks.toml` olduğu için Railway otomatik **Python 3.11** ile build eder.
+> Bu yüzden `NIXPACKS_PYTHON_VERSION` gibi ekstra bir variable eklemene gerek yok.
+
 ### Kalıcı veri (kelime istatistiği kaybolmasın)
 
 Railway’de dosya sistemi genelde kalıcı değildir; bu yüzden volume önerilir.
