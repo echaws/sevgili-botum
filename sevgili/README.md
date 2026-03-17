@@ -1,175 +1,43 @@
-# sevgili-dm-bot (Python)
+# ❤️ Sevgili Botu (Discord)
 
-İki kişi için DM botu (Discord, Python):
-- `!mesaj <yazı>`: yazdığını **diğer kişiye** DM atar (kullanana atmaz)
-- `!topkelime [n]`: en çok kullanılan kelimeler (DM’e yazdıklarınızdan)
-- `!tatli`: bugünün tatlı mesajı + ilişki gününüz
-- `!film`: birlikte film önerisi
-- `!sayac`: başlangıç, toplam gün, sonraki yıldönümüne kalan gün
-- `!soru`: bugünün sorusu
+Bu bot, çiftler için özel olarak hazırlanmış bir Discord botudur. Sevgililik yıl dönümü sayacı, rastgele film önerileri ve birbirinize gizli mesaj gönderme özellikleri sunar.
 
-Bot hem **sunucuya ekli** olabilir hem de **sadece DM** üzerinden çalışır; komutları DM’den yazmanız yeterli.
+## Özellikler
 
-## Kurulum (local, Windows)
+- **Yıl Dönümü Sayacı:** Her sabah saat 09:00'da yıl dönümüne kaç gün kaldığını her iki kullanıcıya da DM yoluyla bildirir.
+- **Rastgele Film Önerileri:** Günün belirlenmiş saatlerinde (12:00, 15:00, 18:00, 21:00) her iki kullanıcıya da rastgele film önerileri gönderir.
+- **Gizli Mesaj Komutu:** `!mesaj <mesajınız>` komutu ile partnerinize bot üzerinden mesaj gönderebilirsiniz. Komutu kullandığınız kanal temizlenir (mesajınız silinir) ve mesaj sadece partnerinize gider.
 
-1) Python 3.11+ kurulu olsun.
+## Kurulum ve Çalıştırma
 
-2) Bu klasörde sanal ortam isteğe bağlı:
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
+### 1. Discord Bot Oluşturma
+- [Discord Developer Portal](https://discord.com/developers/applications) adresine gidin.
+- "New Application" butonuna tıklayarak yeni bir uygulama oluşturun.
+- "Bot" sekmesine geçin, bir isim ve avatar belirleyin.
+- **Privileged Gateway Intents** bölümünden `Message Content Intent` seçeneğini aktif edin.
+- Bot token'ınızı kopyalayın.
 
-3) Bağımlılıkları yükle:
-```bash
-pip install -r requirements.txt
-```
+### 2. CSV ve ID'leri Alma
+- Discord'da "Ayarlar -> Gelişmiş -> Geliştirici Modu"nu aktif edin.
+- Kendi üzerinize sağ tıklayıp "Kullanıcı Kimliğini Kopyala" diyerek kendi ID'nizi alın.
+- Partnerinizin üzerine sağ tıklayıp onun da ID'sini alın.
 
-4) `.env.example` dosyasını `.env` yapıp doldurun:
-- **DISCORD_TOKEN**
-- **USER_A_ID**, **USER_B_ID**
-- **REL_START_DATE** (örn: `2025-03-12`)
-- **DAILY_AT** (örn: `10:00`)
-- (opsiyonel) **STATE_PATH** (örn: `C:\Users\...\sevgili\data\state.json`)
+### 3. Yerel Kurulum
+- `.env` dosyasını açın ve şu bilgileri doldurun:
+  - `DISCORD_TOKEN`: Kopyaladığınız bot token'ı.
+  - `USER_ID_1`: Kendi Discord ID'niz.
+  - `USER_ID_2`: Partnerinizin Discord ID'niz.
+  - `ANNIVERSARY_DATE`: Yıl dönümü tarihiniz (`YYYY-AA-GG` formatında, örn: `2023-01-01`).
 
-5) Çalıştırın:
-```bash
-python bot.py
-```
+### 4. Railway ve GitHub Deployment
+- Bu projeyi bir GitHub deposuna (repository) yükleyin.
+- [Railway.app](https://railway.app/) adresine gidin.
+- Yeni bir proje oluşturun ve "Deploy from GitHub repo" seçeneğini seçin.
+- GitHub deponuzu bağlayın.
+- Railway panelinde "Variables" sekmesine gidin ve `.env` dosyanızdaki değişkenleri (`DISCORD_TOKEN`, `USER_ID_1`, vb.) buraya tek tek ekleyin.
+- Railway otomatik olarak projeyi algılayacak ve `python main.py` komutuyla botu çalıştıracaktır.
 
-## Discord (sunucuya ekleme)
-
-Bot DM üzerinden çalışır ama botu bir sunucuya eklemen için Discord Developer Portal tarafında ayarlar gerekir:
-
-- **Privileged Gateway Intents**:
-  - **Message Content Intent**: AÇIK (DM komutlarını okumak için)
-- **Bot Permissions**:
-  - Minimumda **Send Messages** ve **Read Message History** yeterli (DM için).
-
-Sunucuya eklemek için “OAuth2 → URL Generator” kısmında:
-- Scopes: **bot**
-- Permissions: (en az) **Send Messages**
-
-## Railway Deploy (Python)
-
-1. Projeyi GitHub’a yükle (bu klasörün tamamı, `.env` HARİÇ).
-2. Railway’de yeni proje oluştur → “Deploy from GitHub Repo”.
-
-### Variables (Railway)
-
-Railway → Variables kısmına ekle:
-- **DISCORD_TOKEN**
-- **USER_A_ID**
-- **USER_B_ID**
-- **REL_START_DATE** (örn `2025-03-12`)
-- **DAILY_AT** (örn `10:00`)
-
-> Not: Repoda `runtime.txt` ve `nixpacks.toml` olduğu için Railway otomatik **Python 3.11** ile build eder.
-> Bu yüzden `NIXPACKS_PYTHON_VERSION` gibi ekstra bir variable eklemene gerek yok.
-
-### Kalıcı veri (kelime istatistiği kaybolmasın)
-
-Railway’de dosya sistemi genelde kalıcı değildir; bu yüzden volume önerilir.
-
-- Railway’de bir **Volume** (Disk) ekle ve mount path’i örn: `/data` yap.
-- Variables’a şunu ekle:
-  - **STATE_PATH**=`/data/state.json`
-
-Bu sayede `!topkelime` için tutulan geçmiş restart sonrası da kalır.
-
-### Start command
-
-Railway otomatik olarak Python ortamını kurup `requirements.txt`’i görecektir.
-
-Start komutu:
-- Railway settings → Start command: `python bot.py`
-
-## Notlar
-
-- Bot, sadece `.env` / env değişkenlerindeki iki kullanıcıdan gelen DM’leri dinler.
-- Kelime istatistiği, bota DM’den yazdığınız mesajlardan (komutlar dahil) hesaplanır.
-- Günlük tatlı mesaj + günlük soru + film önerisi, `DAILY_AT` saatine yakın bir anda **iki kişiye de** DM olarak gider.
-
-# sevgili-dm-bot
-
-İki kişi için DM botu:
-- `!mesaj <yazı>`: yazdığını **diğer kişiye** DM atar (kullanana atmaz)
-- `!topkelime [n]`: en çok kullanılan kelimeler (DM’e yazdıklarınızdan)
-- `!tatli`: bugünün tatlı mesajı + ilişki gününüz
-- `!film`: birlikte film önerisi
-- `!sayac`: başlangıç, toplam gün, sonraki yıldönümüne kalan gün
-- `!soru`: bugünün sorusu
-
-## Kurulum
-
-1) Node.js 18+ kurulu olsun.
-
-2) Bu klasörde:
-
-```bash
-npm install
-```
-
-3) `.env.example` dosyasını `.env` yapıp doldurun:
-- **DISCORD_TOKEN**
-- **USER_A_ID**, **USER_B_ID**
-- **REL_START_DATE** (örn: `2025-03-12`)
-- **DAILY_AT** (örn: `10:00`)
-
-4) Çalıştırın:
-
-```bash
-npm start
-```
-
-## Discord (sunucuya ekleme)
-
-Bot DM üzerinden çalışır ama botu bir sunucuya eklemen için Discord Developer Portal tarafında ayarlar gerekir:
-
-- **Privileged Gateway Intents**:
-  - **Message Content Intent**: AÇIK (DM komutlarını okumak için)
-- **Bot Permissions**:
-  - Minimumda **Send Messages** ve **Read Message History** yeterli (DM için).
-
-Sunucuya eklemek için “OAuth2 → URL Generator” kısmında:
-- Scopes: **bot**
-- Permissions: (en az) **Send Messages**
-
-## Railway Deploy
-
-Bu proje Railway’de iki şekilde deploy olur: Nixpacks (otomatik) veya Dockerfile.
-
-### 1) Railway’de proje oluştur
-
-- GitHub’a projeyi koy (veya Railway “Deploy from repo” kullan).
-- Railway’de yeni proje oluşturup repoyu bağla.
-
-### 2) Environment Variables (Railway)
-
-Railway → Variables kısmına ekle:
-- **DISCORD_TOKEN**
-- **USER_A_ID**
-- **USER_B_ID**
-- **REL_START_DATE** (örn `2025-03-12`)
-- **DAILY_AT** (örn `10:00`)
-
-### 3) Kalıcı veri (kelime istatistiği kaybolmasın)
-
-Railway’de dosya sistemi genelde kalıcı değildir; bu yüzden volume önerilir.
-
-- Railway’de bir **Volume** (Disk) ekle ve mount path’i örn: `/data` yap.
-- Variables’a şunu ekle:
-  - **STATE_PATH**=`/data/state.json`
-
-Bu sayede `!topkelime` için tutulan geçmiş restart sonrası da kalır.
-
-### 4) Start command
-
-Railway otomatik olarak `npm start` çalıştırır (package.json içinde hazır).
-
-## Notlar
-
-- Bot, sadece `.env` içindeki iki kullanıcıdan gelen DM’leri dinler.
-- Kelime istatistiği, bota DM’den yazdığınız mesajlardan (komutlar dahil) hesaplanır.
-- Günlük tatlı mesaj ve günlük soru, `DAILY_AT` saatinde **iki kişiye de** DM olarak gider.
-
+## Bağımlılıklar
+- `discord.py`
+- `python-dotenv`
+- `apscheduler`
